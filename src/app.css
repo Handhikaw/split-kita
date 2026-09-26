@@ -1,0 +1,425 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import 'tailwindcss';
+
+/* ─── Tailwind v4 theme (menggantikan tailwind.config.js) ─── */
+@theme {
+  --font-sora: 'Sora', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --radius-sk: 16px;
+  --radius-sk-sm: 10px;
+  --radius-sk-pill: 20px;
+
+  --shadow-sk-glow-violet: 0 0 0 3px rgba(124, 106, 255, 0.2);
+  --shadow-sk-glow-teal: 0 0 0 3px rgba(106, 255, 212, 0.15);
+  --shadow-sk-glow-pink: 0 0 0 3px rgba(255, 106, 142, 0.15);
+  --shadow-sk-btn-violet: 0 4px 16px rgba(124, 106, 255, 0.35);
+  --shadow-sk-btn-hover: 0 8px 28px rgba(124, 106, 255, 0.45);
+  --shadow-sk-card-l: 0 2px 12px rgba(100, 90, 180, 0.1);
+  --shadow-sk-card-hover-l: 0 6px 24px rgba(100, 90, 180, 0.14);
+
+  --animate-pulse-slow: pulse 3s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s ease infinite;
+  --animate-float: float 6s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+}
+
+/* Warna dinamis (dark / light) — dipakai via var(--sk-*) agar bisa ganti runtime.
+   @theme inline membuat utility seperti bg-sk-surface / text-sk-text2
+   memakai var() di output, bukan hex statis, jadi .light tetap jalan. */
+@theme inline {
+  --color-sk-bg: var(--sk-bg);
+  --color-sk-surface: var(--sk-surface);
+  --color-sk-surface2: var(--sk-surface2);
+  --color-sk-border: var(--sk-border);
+  --color-sk-text: var(--sk-text);
+  --color-sk-text2: var(--sk-text2);
+  --color-sk-text3: var(--sk-text3);
+  --color-sk-accent: var(--sk-accent);
+  --color-sk-pink: var(--sk-pink);
+  --color-sk-teal: var(--sk-teal);
+  --color-sk-green: var(--sk-green);
+  --color-sk-yellow: var(--sk-yellow);
+  --color-sk-red: var(--sk-red);
+
+  --color-violet-sk: var(--sk-accent);
+  --color-teal-sk: var(--sk-teal);
+  --color-pink-sk: var(--sk-pink);
+}
+
+/* ─── CSS Variables (consumed by Tailwind arbitrary values) ─── */
+:root {
+  --sk-bg: #0f0f13;
+  --sk-surface: #17171e;
+  --sk-surface2: #1e1e28;
+  --sk-border: #2a2a38;
+  --sk-text: #f0f0f8;
+  --sk-text2: #8888a8;
+  --sk-text3: #555578;
+
+  --sk-accent: #7c6aff;
+  --sk-pink: #ff6a8e;
+  --sk-teal: #6affd4;
+  --sk-green: #4ade80;
+  --sk-yellow: #fbbf24;
+  --sk-red: #f87171;
+}
+
+.light {
+  --sk-bg: #f4f3f8;
+  --sk-surface: #ffffff;
+  --sk-surface2: #eef0f7;
+  --sk-border: #e0dff0;
+  --sk-text: #18172c;
+  --sk-text2: #6b6893;
+  --sk-text3: #a8a6c8;
+  --sk-green: #16a34a;
+  --sk-yellow: #d97706;
+  --sk-red: #dc2626;
+}
+
+/* ─── Base ─── */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sora antialiased;
+    background: var(--sk-bg);
+    color: var(--sk-text);
+    transition:
+      background 0.3s,
+      color 0.3s;
+  }
+
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+}
+
+/* ─── Component layer ─── */
+@layer components {
+  /* ── Surfaces ── */
+  .sk-surface {
+    background: var(--sk-surface);
+    border: 1.5px solid var(--sk-border);
+  }
+
+  .sk-surface2 {
+    background: var(--sk-surface2);
+    border: 1px solid var(--sk-border);
+  }
+
+  /* ── Cards ── */
+  .sk-card {
+    @apply rounded-sk;
+    background: var(--sk-surface);
+    border: 1.5px solid var(--sk-border);
+    transition:
+      border-color 0.2s,
+      transform 0.2s;
+  }
+
+  .sk-card-hover:hover {
+    border-color: rgba(124, 106, 255, 0.4);
+    transform: translateY(-1px);
+  }
+
+  /* ── Inputs ── */
+  .sk-input {
+    @apply w-full rounded-sk-sm px-4 py-3 text-sm font-semibold font-sora outline-none transition-all duration-200;
+    background: var(--sk-surface2);
+    border: 1.5px solid var(--sk-border);
+    color: var(--sk-text);
+  }
+
+  .sk-input::placeholder {
+    color: var(--sk-text3);
+    font-weight: 400;
+  }
+
+  .sk-input:focus {
+    border-color: var(--sk-accent);
+    box-shadow: 0 0 0 3px rgba(124, 106, 255, 0.14);
+    background: var(--sk-surface);
+  }
+
+  /* ── Buttons ── */
+  .sk-btn-primary {
+    @apply flex items-center justify-center gap-2 px-5 py-3 rounded-sk-sm font-bold text-sm text-white transition-all duration-200;
+    background: var(--sk-accent);
+    box-shadow: 0 4px 16px rgba(124, 106, 255, 0.35);
+  }
+
+  .sk-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 28px rgba(124, 106, 255, 0.45);
+  }
+
+  .sk-btn-primary:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .sk-btn-ghost {
+    @apply flex items-center justify-center gap-2 px-5 py-3 rounded-sk-sm font-semibold text-sm transition-all duration-200;
+    border: 1.5px solid var(--sk-border);
+    color: var(--sk-text2);
+    background: transparent;
+  }
+
+  .sk-btn-ghost:hover {
+    border-color: var(--sk-text2);
+    color: var(--sk-text);
+  }
+
+  .sk-btn-gradient {
+    @apply flex items-center justify-center gap-2 px-5 py-3 rounded-sk-sm font-bold text-sm text-white transition-all duration-200;
+    background: linear-gradient(135deg, var(--sk-accent), #a855f7);
+    box-shadow: 0 4px 16px rgba(124, 106, 255, 0.3);
+  }
+
+  .sk-btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(124, 106, 255, 0.45);
+  }
+
+  /* ── Labels ── */
+  .sk-label {
+    @apply block text-xs font-semibold uppercase tracking-wider font-mono mb-1.5;
+    color: var(--sk-text2);
+    letter-spacing: 0.8px;
+  }
+
+  /* ── Pill tags ── */
+  .sk-tag {
+    @apply inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-sk-pill font-mono;
+  }
+
+  .sk-tag-violet {
+    background: rgba(124, 106, 255, 0.12);
+    border: 1px solid rgba(124, 106, 255, 0.25);
+    color: var(--sk-accent);
+  }
+
+  .sk-tag-teal {
+    background: rgba(106, 255, 212, 0.1);
+    border: 1px solid rgba(106, 255, 212, 0.22);
+    color: var(--sk-teal);
+  }
+
+  .sk-tag-pink {
+    background: rgba(255, 106, 142, 0.1);
+    border: 1px solid rgba(255, 106, 142, 0.22);
+    color: var(--sk-pink);
+  }
+
+  .sk-tag-green {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.22);
+    color: var(--sk-green);
+  }
+
+  .sk-tag-yellow {
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.22);
+    color: var(--sk-yellow);
+  }
+
+  /* ── Avatar ── */
+  .sk-avatar {
+    @apply rounded-full flex items-center justify-center font-bold text-white flex-shrink-0;
+  }
+
+  /* ── Section title ── */
+  .sk-section-title {
+    @apply text-xs font-semibold uppercase tracking-widest font-mono;
+    color: var(--sk-text2);
+    letter-spacing: 1.5px;
+  }
+
+  /* ── Bottom Nav ── */
+  .sk-bottom-nav {
+    @apply fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px]
+           flex justify-around px-5 pt-3 pb-7 z-40
+           border-t backdrop-blur-xl;
+    border-color: var(--sk-border);
+    background: rgba(15, 15, 19, 0.92);
+  }
+
+  .light .sk-bottom-nav {
+    background: rgba(244, 243, 248, 0.92);
+  }
+
+  /* ── Toast ── */
+  .sk-toast {
+    @apply fixed bottom-24 left-1/2 -translate-x-1/2
+           px-4 py-2 rounded-sk-pill text-sm font-semibold
+           whitespace-nowrap pointer-events-none z-[999]
+           transition-all duration-300;
+    background: var(--sk-surface);
+    border: 1px solid var(--sk-border);
+    color: var(--sk-text);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    transform: translateX(-50%) translateY(10px);
+    opacity: 0;
+  }
+
+  .sk-toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── Modal / Bottom sheet ── */
+  .sk-modal-overlay {
+    @apply fixed inset-0 z-[200] flex items-end justify-center;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+  }
+
+  .sk-modal {
+    @apply w-full max-w-[420px] rounded-t-3xl overflow-y-auto max-h-[90vh];
+    background: var(--sk-surface);
+    border: 1px solid var(--sk-border);
+  }
+
+  .sk-modal-handle {
+    @apply w-9 h-1 rounded-full mx-auto mt-3 mb-0;
+    background: var(--sk-border);
+  }
+
+  /* ── Progress bar ── */
+  .sk-progress-track {
+    @apply w-full h-2.5 rounded-full overflow-hidden;
+    background: var(--sk-surface2);
+    border: 1px solid var(--sk-border);
+  }
+
+  .sk-progress-fill {
+    @apply h-full rounded-full;
+    background: linear-gradient(90deg, var(--sk-accent), #a855f7);
+    position: relative;
+    transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .sk-progress-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2.5s ease infinite;
+  }
+}
+
+/* ─── Utilities ─── */
+@layer utilities {
+  .scrollbar-none {
+    scrollbar-width: none;
+    /* Momentum scroll di iOS lama (diabaikan browser modern, aman). */
+    -webkit-overflow-scrolling: touch;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Affordance strip horizontal: fade HANYA di sisi yang masih bisa
+     digeser (class dipasang/dilepas action fadeX; lihat actions.ts).
+     Mentok kiri -> tanpa fade kiri, mentok kanan -> tanpa fade kanan. */
+  .mask-fade-l {
+    mask-image: linear-gradient(to right, transparent, black 16px);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 16px);
+  }
+  .mask-fade-r {
+    mask-image: linear-gradient(to right, black calc(100% - 16px), transparent);
+    -webkit-mask-image: linear-gradient(to right, black calc(100% - 16px), transparent);
+  }
+  .mask-fade-l.mask-fade-r {
+    mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, black 16px, black calc(100% - 16px), transparent);
+  }
+
+  /* Kursor + anti-seleksi teks saat drag-to-scroll (class `dragging`
+     dipasang/dilepas action dragX). */
+  .drag-scroll {
+    cursor: grab;
+  }
+  .drag-scroll.dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+  .drag-scroll.dragging * {
+    user-select: none;
+  }
+
+  /* border-sk tidak ada padanannya di theme (theme menghasilkan
+     border-sk-border), jadi tetap definisikan manual */
+  .border-sk {
+    border-color: var(--sk-border);
+  }
+
+  .font-display {
+    font-family: 'Sora', sans-serif;
+  }
+
+  /* Gradient text */
+  .gradient-text-violet {
+    background: linear-gradient(135deg, var(--sk-accent), var(--sk-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ─── Page enter animation ─── */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-fade-up-1 {
+  animation-delay: 0.05s;
+}
+.animate-fade-up-2 {
+  animation-delay: 0.1s;
+}
+.animate-fade-up-3 {
+  animation-delay: 0.15s;
+}
+.animate-fade-up-4 {
+  animation-delay: 0.2s;
+}
+.animate-fade-up-5 {
+  animation-delay: 0.25s;
+}

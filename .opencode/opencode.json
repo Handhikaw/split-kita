@@ -1,0 +1,13 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"plugin": [
+		"@sveltejs/opencode"
+	],
+	"references": {
+		"back-end": {
+			"path": "../../Documents/split-bill-go",
+			"description": "Use for Cek Code Backend",
+			"hidden": false
+		}
+	}
+}
