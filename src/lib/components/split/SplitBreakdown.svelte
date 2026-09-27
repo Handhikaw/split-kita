@@ -22,6 +22,9 @@
     participant: Participant
     lines: { name: string; qty: number; share: number }[]
     itemSubtotal: number
+    /** Selisih utang server − subtotal item = porsi pajak+service−diskon.
+     *  Dihitung residual (bukan proporsi ulang) agar exact mengikuti server. */
+    adjustment: number
     total: number
   }
 
@@ -34,11 +37,14 @@
           qty: it.quantity,
           share: it.shares[p.id] ?? 0
         }))
+      const itemSubtotal = lines.reduce((s, l) => s + l.share, 0)
+      const total = owedById[p.id] ?? 0
       return {
         participant: p,
         lines,
-        itemSubtotal: lines.reduce((s, l) => s + l.share, 0),
-        total: owedById[p.id] ?? 0
+        itemSubtotal,
+        adjustment: total - itemSubtotal,
+        total
       }
     })
   )
@@ -92,6 +98,14 @@
                   </span>
                 </div>
               {/each}
+              {#if pt.adjustment !== 0}
+                <div class="flex justify-between text-[11px]">
+                  <span class="text-sk-text2 truncate mr-2">Pajak + service − diskon</span>
+                  <span class="font-mono font-semibold flex-shrink-0">
+                    {pt.adjustment > 0 ? '+' : ''}{formatMoney(pt.adjustment, currency)}
+                  </span>
+                </div>
+              {/if}
             </div>
           {/if}
         </div>

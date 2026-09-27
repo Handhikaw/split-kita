@@ -423,3 +423,76 @@
 .animate-fade-up-5 {
   animation-delay: 0.25s;
 }
+
+/* ─── Print: struk terang ───
+   window.print() dari tombol PDF. Prinsip: cetak ISI (judul, item,
+   total, per orang, utang), buang CHROME (nav, tombol, modal, banner).
+   Palet dipaksa terang agar hemat tinta (independen dari tema aktif). */
+@media print {
+  :root {
+    --sk-bg: #ffffff;
+    --sk-surface: #ffffff;
+    --sk-surface2: #f4f4f6;
+    --sk-border: #dddddd;
+    --sk-text: #111111;
+    --sk-text2: #555555;
+    --sk-text3: #999999;
+  }
+
+  html, body {
+    background: #fff !important;
+  }
+
+  /* Chrome yang tidak ikut cetak (judul + strip peserta di header tetap).
+     Tombol disembunyikan global; baris aksi spesifik pakai .no-print. */
+  nav,
+  button,
+  .sk-bottom-nav,
+  .sk-modal-overlay,
+  .sk-toast,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Header sticky jadi statis agar tidak dobel di tiap halaman cetak */
+  header {
+    position: static !important;
+  }
+
+  /* Konten penuh, tanpa batas mobile */
+  body > div {
+    display: block !important;
+  }
+  .min-h-dvh {
+    min-height: auto !important;
+    padding-bottom: 0 !important;
+  }
+  [class*='max-w-[420px]'] {
+    max-width: 100% !important;
+  }
+
+  /* Kartu rata tanpa bayangan; cegah kepotong halaman */
+  .sk-card, .sk-surface, .sk-surface2 {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+
+  /* Matikan animasi & efek */
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Teks gradient tidak tercetak baik -> teks biasa */
+  .gradient-text-violet {
+    background: none !important;
+    -webkit-text-fill-color: currentColor;
+    color: #111 !important;
+  }
+
+  a {
+    text-decoration: none !important;
+    color: inherit !important;
+  }
+}

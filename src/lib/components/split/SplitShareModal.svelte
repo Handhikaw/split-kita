@@ -9,6 +9,8 @@
   interface Props {
     title: string
     itemCount: number
+    /** Kata satuan jumlah ("item" untuk split, "transaksi" untuk group). */
+    unitLabel?: string
     memberCount: number
     total: number
     currency?: string
@@ -16,7 +18,8 @@
     onClose: () => void
   }
 
-  let { title, itemCount, memberCount, total, currency = 'IDR', shareUrl, onClose }: Props = $props()
+  let { title, itemCount, unitLabel = 'item', memberCount, total, currency = 'IDR', shareUrl, onClose }: Props =
+    $props()
 
   function copyLink() {
     navigator.clipboard?.writeText(shareUrl).then(
@@ -47,6 +50,12 @@
     const text = encodeURIComponent(`${title || 'Split Bill'} · ${formatMoney(total, currency)}\n${shareUrl}`)
     const url = kind === 'wa' ? `https://wa.me/?text=${text}` : `https://t.me/share/url?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(title || 'Split Bill')}`
     window.open(url, '_blank', 'noopener')
+  }
+
+  /** Tutup modal dulu agar tidak ikut ke dialog cetak, lalu print. */
+  function printReceipt() {
+    onClose()
+    setTimeout(() => window.print(), 100)
   }
 </script>
 
@@ -84,7 +93,7 @@
         <div>
           <div class="text-sm font-bold">{title || 'Split Bill'}</div>
           <div class="text-xs text-sk-text2 font-mono mt-0.5">
-            {itemCount} item · {memberCount} orang
+            {itemCount} {unitLabel} · {memberCount} orang
           </div>
         </div>
         <div class="text-right">
@@ -135,11 +144,11 @@
         </button>
         <button
           type="button"
-          onclick={() => toastStore.show('Fitur khusus Pro')}
+          onclick={printReceipt}
           class="flex items-center justify-center gap-1.5 py-2.5 rounded-sk-sm border border-sk bg-sk-surface2 text-xs font-semibold text-sk-text2 hover:border-[#7c6aff] hover:text-sk-text transition-all duration-200"
         >
           <Icon icon={FileText} size={13} strokeWidth={1.75} />
-          PDF (Pro)
+          Cetak / PDF
         </button>
       </div>
     </div>

@@ -53,7 +53,12 @@
     text = el.value
     value = parseUserInput(text, currency)
   }}
-  onfocus={() => (focused = true)}
+  onfocus={(e) => {
+    focused = true
+    // Select-all: ketik langsung menimpa nilai lama. Tanpa ini, field
+    // berisi "0" + ketik "15000" = "015000" (masalah klasik di HP).
+    ;(e.target as HTMLInputElement).select()
+  }}
   onblur={() => (focused = false)}
   onkeydown={(e) => {
     if (e.key === 'Enter') (e.target as HTMLInputElement).blur()

@@ -1,6 +1,5 @@
 <script lang="ts">
   import { page } from '$app/state'
-  import BottomNav from '$lib/components/layout/BottomNav.svelte'
   import GroupHeader from '$lib/components/group/GroupHeader.svelte'
   import SummaryCard from '$lib/components/group/SummaryCard.svelte'
   import ExpenseCard from '$lib/components/group/ExpenseCard.svelte'
@@ -9,10 +8,12 @@
   import ExpenseModal, { type ExpenseDraft } from '$lib/components/group/ExpenseModal.svelte'
   import ParticipantModal from '$lib/components/group/ParticipantModal.svelte'
   import ClaimModal from '$lib/components/group/ClaimModal.svelte'
+  import SplitShareModal from '$lib/components/split/SplitShareModal.svelte'
   import Icon from '$lib/components/ui/Icon.svelte'
   import { wheelX, dragX, fadeX } from '$lib/actions'
-  import { Plus, Sparkles, TriangleAlert, RotateCw, UserRoundPlus } from 'lucide-svelte'
+  import { Plus, Sparkles, TriangleAlert, RotateCw, UserRoundPlus, Share2, Users } from 'lucide-svelte'
   import { toastStore } from '$lib/stores.svelte'
+  import { formatMoney } from '$lib/money'
   import { ApiError, toUserMessage } from '$lib/api/client'
   import {
     createExpenseApi,
@@ -103,6 +104,7 @@
   let showExpenseModal = $state(false)
   let showParticipantModal = $state(false)
   let showClaimModal = $state(false)
+  let showShareModal = $state(false)
   let claimDismissed = $state(false)
 
   const expenses = $derived(bill?.expenses ?? [])
@@ -129,6 +131,32 @@
     if (!bill) return
     bill = { ...bill, expenses: bill.expenses.map((e) => (e.id === id ? { ...e, expanded: !e.expanded } : e)) }
   }
+
+  // Item detail dirender kondisional ({#if expanded}) sehingga CSS print
+  // tidak bisa memunculkannya -> expand semua saat dialog cetak dibuka,
+  // kembalikan setelahnya.
+  let expandedBeforePrint: number[] = []
+  function handleBeforePrint() {
+    if (!bill) return
+    expandedBeforePrint = bill.expenses.filter((e) => e.expanded).map((e) => e.id)
+    bill = { ...bill, expenses: bill.expenses.map((e) => ({ ...e, expanded: true })) }
+  }
+  function handleAfterPrint() {
+    if (!bill) return
+    const keep = new Set(expandedBeforePrint)
+    bill = { ...bill, expenses: bill.expenses.map((e) => ({ ...e, expanded: keep.has(e.id) })) }
+    expandedBeforePrint = []
+  }
+
+  $effect(() => {
+    if (typeof window === 'undefined') return
+    window.addEventListener('beforeprint', handleBeforePrint)
+    window.addEventListener('afterprint', handleAfterPrint)
+    return () => {
+      window.removeEventListener('beforeprint', handleBeforePrint)
+      window.removeEventListener('afterprint', handleAfterPrint)
+    }
+  })
 
   function markPaid(id: number) {
     settledIds = new Set(settledIds).add(id)
@@ -472,11 +500,13 @@
       onSelect={(id) => (activeParticipantId = id)}
       onAddClick={() => (showParticipantModal = true)}
       title={bill.name}
+      titleIcon={Users}
       code={publicId.toUpperCase()}
+      itemCount={expenses.length}
     />
 
     {#if claimedId == null}
-      <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-sk-sm border border-dashed border-[rgba(124,106,255,0.30)] flex items-center gap-2.5">
+      <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-sk-sm border border-dashed border-[rgba(124,106,255,0.30)] flex items-center gap-2.5 no-print">
         <Icon icon={UserRoundPlus} size={15} class="text-[#7c6aff] flex-shrink-0" />
         <span class="flex-1 text-xs text-sk-text2">Kamu belum terdaftar di bill ini.</span>
         <button
@@ -488,7 +518,7 @@
         </button>
       </div>
     {:else if claimedName}
-      <div class="mx-5 mb-4 text-[11px] text-sk-text3">
+      <div class="mx-5 mb-4 text-[11px] text-sk-text3 no-print">
         Masuk sebagai <strong class="text-sk-text2">{claimedName}</strong>
       </div>
     {/if}
@@ -598,7 +628,25 @@
   {/if}
 </div>
 
-<BottomNav />
+<!-- ── FIXED BOTTOM BAR (ala split: total + bagikan; aksi, tidak ikut cetak) ── -->
+{#if !loading && bill}
+  <div
+    class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-40 border-t border-sk backdrop-blur-xl px-5 pt-3.5 pb-7 bg-sk-bg/93 no-print"
+  >
+    <div class="flex items-center gap-3">
+      <div class="flex-1">
+        <div class="text-[10px] font-mono text-sk-text2 mb-0.5">Total Pengeluaran</div>
+        <div class="text-xl font-extrabold font-mono text-[#7c6aff]">
+          {formatMoney(totalAmount, bill.currency)}
+        </div>
+      </div>
+      <button type="button" onclick={() => (showShareModal = true)} class="sk-btn-primary px-5 py-3 gap-2">
+        <Icon icon={Share2} size={15} strokeWidth={2} />
+        Bagikan
+      </button>
+    </div>
+  </div>
+{/if}
 
 {#if showExpenseModal && bill}
   <ExpenseModal
@@ -635,5 +683,18 @@
       claimDismissed = true
       showClaimModal = false
     }}
+  />
+{/if}
+
+{#if showShareModal && bill}
+  <SplitShareModal
+    title={bill.name}
+    itemCount={expenses.length}
+    unitLabel="transaksi"
+    memberCount={participants.length}
+    total={totalAmount}
+    currency={bill.currency}
+    shareUrl={typeof window !== 'undefined' ? window.location.href : ''}
+    onClose={() => (showShareModal = false)}
   />
 {/if}

@@ -360,12 +360,12 @@
       onAddClick={() => (showParticipantModal = true)}
       title={bill.name}
       titleIcon={ReceiptText}
-      meta="{items.length} item · {participants.length} orang · {formatMoney(totalAmount, currency)}"
-      onShare={() => (showShareModal = true)}
+      code={publicId.toUpperCase()}
+      itemCount={items.length}
     />
 
     {#if claimedId == null}
-      <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-sk-sm border border-dashed border-[rgba(124,106,255,0.30)] flex items-center gap-2.5">
+      <div class="mx-5 mb-4 px-3.5 py-2.5 rounded-sk-sm border border-dashed border-[rgba(124,106,255,0.30)] flex items-center gap-2.5 no-print">
         <Icon icon={UserRoundPlus} size={15} class="text-[#7c6aff] flex-shrink-0" />
         <span class="flex-1 text-xs text-sk-text2">Kamu belum terdaftar di bill ini.</span>
         <button type="button" onclick={() => (showClaimModal = true)} class="text-xs font-bold text-[#7c6aff] flex-shrink-0">
@@ -373,13 +373,13 @@
         </button>
       </div>
     {:else if claimedName}
-      <div class="mx-5 mb-4 text-[11px] text-sk-text3">
+      <div class="mx-5 mb-4 text-[11px] text-sk-text3 no-print">
         Masuk sebagai <strong class="text-sk-text2">{claimedName}</strong>
       </div>
     {/if}
 
-    <!-- ── OCR BANNER (simulasi) ── -->
-    <div class="px-5 pt-5 animate-fade-up animate-fade-up-1">
+    <!-- ── OCR BANNER (simulasi; aksi, tidak ikut cetak) ── -->
+    <div class="px-5 pt-5 animate-fade-up animate-fade-up-1 no-print">
       <button
         type="button"
         onclick={() => (showOcrModal = true)}
@@ -429,8 +429,8 @@
       </button>
     </div>
 
-    <!-- ── PAYER ── -->
-    <div class="px-5 mt-6 animate-fade-up animate-fade-up-3">
+    <!-- ── PAYER (kontrol; info pembayar tercermin di Saldo & Utang) ── -->
+    <div class="px-5 mt-6 animate-fade-up animate-fade-up-3 no-print">
       <span class="sk-section-title block mb-3">Dibayar Oleh</span>
       <div class="sk-card p-4 flex items-center gap-3">
         <div class="flex-1">
@@ -500,10 +500,10 @@
   {/if}
 </div>
 
-<!-- ── FIXED BOTTOM BAR ── -->
+<!-- ── FIXED BOTTOM BAR (aksi; tidak ikut cetak) ── -->
 {#if !loading && bill}
   <div
-    class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-40 border-t border-sk backdrop-blur-xl px-5 pt-3.5 pb-7 bg-sk-bg/93"
+    class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[420px] z-40 border-t border-sk backdrop-blur-xl px-5 pt-3.5 pb-7 bg-sk-bg/93 no-print"
   >
     <div class="flex items-center gap-3">
       <div class="flex-1">
@@ -512,7 +512,7 @@
       </div>
       <button type="button" onclick={() => (showShareModal = true)} class="sk-btn-primary px-5 py-3 gap-2">
         <Icon icon={Share2} size={15} strokeWidth={2} />
-        Selesai & Bagikan
+        Bagikan
       </button>
     </div>
   </div>

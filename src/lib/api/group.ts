@@ -176,11 +176,19 @@ export interface UpdateExpenseInput {
   title?: string
   /** Minor-int, diserialkan jadi string. SIMPLE saja (DETAIL diabaikan BE). */
   amount?: number
+  /** Minor-int nominal (bukan persen), diserialkan jadi string. */
+  tax?: number
+  discount?: number
+  charge?: number
   category?: number
   /** Id peserta (payer baru). Divalidasi peserta bill oleh BE. */
   created_by?: number
   participants?: number[]
 }
+
+/** Field uang di kontrak BE selalu string — serialkan terpusat di sini
+ *  agar pemanggil tidak perlu ingat (penyebab bug 400 discount number). */
+const EXPENSE_MONEY_KEYS = ['amount', 'tax', 'discount', 'charge'] as const
 
 export function updateExpenseApi(
   publicId: string,
@@ -188,10 +196,13 @@ export function updateExpenseApi(
   input: UpdateExpenseInput,
   claimedId?: number
 ) {
-  const { amount, ...rest } = input
+  const body: Record<string, unknown> = { ...input }
+  for (const k of EXPENSE_MONEY_KEYS) {
+    if (typeof body[k] === 'number') body[k] = toBackendAmount(body[k] as number)
+  }
   return apiFetch<unknown>(`/api/expense/${encodeURIComponent(publicId)}/${expenseId}`, {
     method: 'PATCH',
-    body: amount != null ? { ...rest, amount: toBackendAmount(amount) } : rest,
+    body,
     auth: true,
     participantId: claimedId
   })
